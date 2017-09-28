@@ -1,0 +1,484 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Short Sectioned Assignment
+% LaTeX Template
+% Version 1.0 (5/5/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Frits Wenneker (http://www.howtotex.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[paper=a4, fontsize=11pt]{scrartcl} % A4 paper and 11pt font size
+\usepackage{graphicx}
+\usepackage{mathpazo}
+\usepackage{tabularx}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm} % Math packages
+
+\usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
+
+\usepackage{sectsty} % Allows customizing section commands
+\allsectionsfont{\centering \normalfont\scshape} % Make all sections centered, the default font and small caps
+
+\usepackage{fancyhdr} % Custom headers and footers
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+\urlstyle{same}
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+\fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+\fancyfoot[L]{} % Empty left footer
+\fancyfoot[C]{} % Empty center footer
+\fancyfoot[R]{\thepage} % Page numbering for right footer
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+\setlength{\headheight}{13.6pt} % Customize the height of the header
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+
+\title{	
+\normalfont \normalsize 
+\textsc{University "La Sapienza" of Rome} \\ [25pt] % Your university, school and/or department name(s)
+\horrule{0.5pt} \\[0.4cm] % Thin top horizontal rule
+\huge Application of Process Mining in Healtcare - based on the dataset of the San Carlo Nancy Hospital\\ % The assignment title
+\horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+}
+
+\author{Simone Agostinelli 1523559} % Your name
+
+\date{\normalsize\today} % Today's date or a custom date
+\begin{document}
+
+\maketitle % Print the title
+\tableofcontents
+%----------------------------------------------------------------------------------------
+%	PROBLEM 1
+%----------------------------------------------------------------------------------------
+\clearpage
+\section{Introduction}
+The dataset of San Carlo Nancy hospital is made up by three different files:
+\begin{itemize}
+\item \textbf{Ambulatori}: each row stores the information about a specialist outpatient clinic service;
+\item \textbf{Pronto soccorso}: each row represents a single emergency room intervention;
+\item \textbf{Ricoveri}: each row represents a single recovery taken by a patient
+\end{itemize}
+These three files contain information about both year 2016 and May 2017. We apply process mining techniques to obtain meaningful knowledge about the patient care processes, for instance, to discover typical paths followed by particular groups of patients. In order to do so we extracted relevant event logs from the dataset and analyzed these logs using the ProM framework. \textbf{This paper covers only the part related to the ``Ambulatori'' file}.
+\newpage
+\section{Ambulatori: inspecting the file}
+The ``Ambulatori'' file consists in the following fields:
+\begin{figure} [h]
+\centering
+\includegraphics[scale = 1.1]{immagine}
+\caption{Record layout of the ``Ambulatori'' file}\label{fig:1}
+\end{figure}
+\newpage
+The meaning of the columns is as follow:
+\begin{itemize}
+\item the column \textbf{Pr} (progressivo) indicates the succession of the fields within the record layout.
+\item the column \textbf{Pert} (pertinenza) indicates on which type of records refer the different information:
+\begin{itemize}
+\item the fields marked with 1 refer both on records of type ``prestazione'' and ``ricetta'';
+\item the fields marked with 2 refer only on record of type ``ricetta'';
+\item the fields marked with 3 refer only on record of type ``prestazione''
+\end{itemize}
+\item the column \textbf{Denominazione del campo} denotes the description/name of the fields.
+\item the column \textbf{Caratteri} indicates the length of each field.
+\item the column \textbf{Colonne} indicates the number of the initial column and the number of final column of each field within the record.
+\item the column \textbf{Formato} indicates the characteristics of the content of each field and its alignment.
+\item The column \textbf{Prior} (priorità) indicates the order of importance attributed to the different fields of the archive:
+\begin{itemize}
+\item the fields marked with 1 are considered mandatory;
+\item the fields marked with 2 are considered deferred mandatory;
+\item the fields marked with 3 are considered deferred mandatory for tracking specific performance defined at the regional level.
+\end{itemize}
+\end{itemize} 
+As we can see in previous table, the data-set is made up by \textbf{38} fields. Let's inspect one after the other:
+\begin{enumerate}
+\item \textbf{Identificativo di record}: sequential number that uniquely identifies each record of the dataset
+\item \textbf{ASL}: regional code of the ASL in which the hospital attendance is located, or the hospital code for IRCCS and University hospital.
+\item \textbf{Presidio principale}: identication code of the subject which handles the first contact with the patient. It is the holder of the remuneration for the healt services prescribed in the medical prescription and it must be accredited for the branch and for the healt services indicated.
+\item \textbf{Codice di polo}: code of the hospital pole to which the main hospital attendance refers.
+\item \textbf{Presidio secondario}: when the healt services are not performed directly from the hospital attendance this field must indicate who materially perform the healt services. For healt services directly performed by the main hospital attendance this field must not be filled.
+\item \textbf{Tipologia di soggetto erogatore principale}: this field contains three kinds of different values:
+\begin{itemize}
+\item pubblico (1)
+\item privato accreditato (2)
+\item classificato (3)
+\item IRCCS pubblico (4)
+\item Policlinico Universitario pubblico (5)
+\item Azienda Ospedaliera (6)
+\item IRCCS privato (7)
+\item Policlinico Universitario privato (8)
+\item Extraterritoriali (9)
+\end{itemize}
+\item \textbf{Tipologia di soggetto prescrittore}: this field contains three kinds of different values:
+\begin{itemize}
+\item medico di medicina generale/pediatra di libera scelta/guardia medica/guardia turistica (1).
+\item medico specialista dipendente da struttura pubblica (2).
+\item medico specialista SUMAI (3).
+\item accesso diretto (4).
+\item Altro (5).
+\item Addebito ad istituzioni estere (6).
+\end{itemize}
+\item \textbf{Codice di soggetto prescrittore}: the data format depends on the values of the field ``tipologia di soggetto prescrittore''.
+\item \textbf{Codice fiscale dell'assistito}: identification code of the patient.
+\item \textbf{Cognome dell'assistito}: surname of the patient.
+\item \textbf{Nome dell'assistito}: name of the patient.
+\item \textbf{Sesso}: gender of the patient.
+\item \textbf{Comune di nascita}: place of birth of the patient.
+\item \textbf{Data di nascita}: date of birth of the patient.
+\item \textbf{Comune di residenza}: residence city of the patient.
+\item \textbf{Municipalità di residenza} (circoscrizione): residence municipality of the patient
+\item \textbf{ASL di residenza}: residence ASL of the patient.
+\item \textbf{Cittadinanza}: citizenship of the patient. %100 for italian residence
+\item \textbf{Livello di priorità della richiesta}: it describes the healt service request priority level inferable from the patient's clinical condition. There are three different types of priority level:
+\begin{itemize}
+\item A: to be performed within 10 days.
+\item B: to be performed within 30 days for the visits and within 60 days for the instrumental performance.
+\item C: to be performed within 180 days.
+\end{itemize}
+The information is provided by the prescriptive subject. 
+\item \textbf{Prescrizione suggerita}:
+\begin{itemize}
+\item If the medical prescription is not recommended, the field is filled with 1.
+\item If the medical prescription is recommended, the field is filled with 2.
+\end{itemize}
+This field is filled only for the prescriptions compiled by the basic physician.
+\item \textbf{Determinante clinico}: it describes the healt problem which motivates the healt service effectuation according to the international classification (ICDIXCM)of ilnesses. The information is provided by the prescriptive subject.
+\item \textbf{Data di richiesta della prestazione} (data prenotazione): the date on which the reservation was made according to GGMMAAAA format.
+\item \textbf{Data di inizio ciclo}: the date on which the healt services start according to GGMMAAA format.
+\item \textbf{Numero ricetta}: uniquely identifies the medical prescription for a certain patient.
+\item \textbf{Progressivo di prescrizione} (progressivo di riga): for the row 'prestazione' insert a sequential number (starting from 01) and for the row 'ricetta' insert 99. For example, a medical prescription containing 5 healt service requests, generates 6 records: 5 record 'prestazione' with ``progressivo di prescrizione'' ranging from 01 to 05 and 1 record 'ricetta' with ``progressivo di prescrizione'' equals to 99. The maximum number of healt services per medical description are 8 plus 5 blood sampling identified by the following codes: 91.49.1, 91.49.2, 91.49.3, 91.49.4, 91.49.5.
+\item \textbf{Data di effettuazione}: the date on which the healt service is performed or the date on which the cycle of healt services are completed.
+\item \textbf{Codice di prestazione}: code which describes the healt service performed according to the regional nomenclature.
+\item \textbf{Numero di prestazioni per codice}: it indicates the number of repetitions of the same healt service. If the healt service is single, this field is filled with 1.
+\item \textbf{Esenzione}: there are different kinds of exemption:
+\begin{itemize}
+\item esente totale (1)
+\item non esente (2)
+\item esente per età e reddito (3)
+\item esente per patologia (4)
+\item esente per prestazioni finalizzate alla diagnosi precoce dei tumori (5)
+\item esente per categoria (6)
+\item donne in stato di gravidanza (7)
+\item esente parziale per invalidità (8)
+\item altre categorie (9)
+
+\end{itemize}
+\item \textbf{Codice di esenzione}: code which specifies the type of exemption.
+\item \textbf{Tipologia di pagamento}: indicates the participation in spending:
+\begin{itemize}
+\item esente (1)
+\item ticket (2)
+\item franchigia (3)
+\item libera professione "intramoenia" (4)
+\item terzo pagante diverso da SSR (5)
+\item SASN (6)
+\end{itemize}
+\item \textbf{Ticket}: for records 'ricetta' indicates the expenditure sustained by the patient directly or through another payer different from the SSR.
+\item \textbf{Importo}: for records 'prestazione' indicates the cost of the single healt service multiplied for the number of repetitions of that healt service.
+\item \textbf{Posizione contabile}: indicates the position of healt services against any disputes:
+\begin{itemize}
+\item prestazioni appartenenti al mese di competenza (1)
+\item prestazioni recuperate dal mese precedente (2)
+\item prestazioni prescritte nell'ultimo trimestre dell'anno precedente (5)
+\item prestazioni accettate per recuperi straordinari (6)
+\end{itemize}
+\item \textbf{Branca specialistica}: the code of the healt service disbursement branch.
+\item \textbf{Codice di ambulatorio}: the code of the outpatient-clinic which performs the healt service.
+\item \textbf{Data di refertazione} (data compilazione ricetta): the date on which the medical prescription was compiled according to GGMMAAAA format. %This field is filled only for rows with ``progressivo di prescrizione'' equal to 99. 
+\item \textbf{Referto}: medical reports according to ICDIXCM encoding.
+\end{enumerate}
+
+\section{Ambulatori: pie charts}\label{piecharts}
+The pie charts are built taking into account ``ambulatori'' data-set of the year 2016. In particular, the pie charts that will follow are the ones corresponding to the most important fields of the dataset, that is, the ones containing useful information for discovering the process model. For instance, the personal data of the patients (name, surname, gender, etc \ldots) are useless in terms of ``\textbf{process}'' and therefore the pie charts corresponding to them are not shown. Let's see the pie charts in details: \newline
+\begin{figure} [htbp]
+\begin{minipage}[t]{0.5\textwidth}
+\centering
+\includegraphics[width=\textwidth]{ASL}
+\caption{ASL}\label{asl}
+\end{minipage}
+\begin{minipage}[t]{0.5\textwidth}
+\centering
+\includegraphics[width=\textwidth]{PresidioPrincipale}
+\caption{Presidio principale}\label{presidioprincipale}
+\end{minipage}
+\begin{minipage}[t]{0.5\textwidth}
+\centering
+\includegraphics[width=\textwidth]{CodicePolo}
+\caption{Codice di Polo}\label{codicepolo}
+\end{minipage}
+\begin{minipage}[t]{0.5\textwidth}
+\centering
+\includegraphics[width=\textwidth]{PresidioSecondario}
+\caption{Presidio secondario}\label{presidiosecondario}
+\end{minipage}
+\end{figure}
+
+\begin{figure} [htbp]
+\begin{minipage}[t]{0.5\textwidth}
+\centering
+\includegraphics[width=\textwidth]{TipologiaSoggettoErogatorePrincipale}
+\caption{Tipologia di soggetto erogatore principale}\label{tipologiaerogatoreprincipale}
+\end{minipage}
+\begin{minipage} [t]{0.5\textwidth}
+\centering
+\includegraphics[width=\textwidth]{TipologiaSoggettoPrescrittore}
+\caption{Tipologia di soggetto prescrittore}\label{tipologiasoggettoprescrittore}
+\end{minipage}
+\begin{minipage} [t]{0.5\textwidth}
+\centering
+\includegraphics[width=\textwidth]{CodiceSoggettoPrescrittore}
+\caption{Codice di soggetto prescrittore}\label{codicesoggettoprescrittore}
+\end{minipage}
+\begin{minipage} [t]{0.5\textwidth}
+\centering
+\includegraphics[width=\textwidth]{LivelloPriorita}
+\caption{Livello di priorità della richiesta}\label{livellopriorita}
+\end{minipage}
+\begin{minipage} [t]{0.5\textwidth}
+\centering
+\includegraphics[width=\textwidth]{PrescrizioneSpecialista}
+\caption{Prescrizione suggerita da specialista}\label{prescrizionespecialista}
+\end{minipage}
+\begin{minipage}[t]{0.5\textwidth}
+\centering
+\includegraphics[width=\textwidth]{DeterminanteClinico}
+\caption{Determinante clinico}\label{determinanteclinico}
+\end{minipage}
+
+\end{figure}
+
+\begin{figure}
+\begin{minipage} [t]{0.5\textwidth}
+\centering
+\includegraphics[width=\textwidth]{CodicePrestazione}
+\caption{Codice prestazione}\label{codiceprestazione}
+\end{minipage}
+\begin{minipage} [t]{0.5\textwidth}
+\centering
+\includegraphics[width=\textwidth]{NumeroPrestazioniCodice}
+\caption{Numero prestazioni per codice}\label{numeroprestazionicodice}
+\end{minipage}
+\begin{minipage} [t]{0.5\textwidth}
+\centering
+\includegraphics[width=\textwidth]{Esenzione}
+\caption{Esenzione}\label{esenzione}
+\end{minipage}
+\begin{minipage} [t]{0.5\textwidth}
+\centering
+\includegraphics[width=\textwidth]{PatologiaEsenzione}
+\caption{Patologia di esenzione}\label{patologiaesenzione}
+\end{minipage}
+\begin{minipage} [t]{0.5\textwidth}
+\centering
+\includegraphics[width=\textwidth]{TipologiaPagamento}
+\caption{Tipologia di pagamento}\label{tipologiapagamento}
+\end{minipage}
+\begin{minipage} [t]{0.5\textwidth}
+\centering
+\includegraphics[width=\textwidth]{PosizioneContabile}
+\caption{Posizione contabile}\label{posizionecontabile}
+\end{minipage}
+\end{figure}
+
+\begin{figure}
+\begin{minipage} [t]{0.5\textwidth}
+\centering
+\includegraphics[width=\textwidth]{BrancaSpecialistica}
+\caption{Branca Specialistica}\label{brancaspecialistica}
+\end{minipage}
+\begin{minipage} [t]{0.5\textwidth}
+\centering
+\includegraphics[width=\textwidth]{CodiceAmbulatorio}
+\caption{Codice Ambulatorio}\label{codiceambulatorio}
+\end{minipage}
+\begin{minipage} [t]{0.5\textwidth}
+\centering
+\includegraphics[width=\textwidth]{Referto}
+\caption{Referto}\label{referto}
+\end{minipage}
+
+\end{figure}
+\newpage
+
+\begin{itemize}
+\item \textbf{ASL} (Figure \ref{asl}): looking at the chart is possible to see that alle the records will refer to a unique ASL, that is the one with code 105. This is the ASL of the San Carlo Nancy hospital.
+\item \textbf{Presidio principale} (Figure \ref{presidioprincipale}): looking at the chart is possible to see that alle the records will refer to a unique hospital attendance, that is the one with code 5800.
+\item \textbf{Codice di polo} (Figure \ref{codicepolo}): looking at the chart is possible to see that all the records will refer to a unique hospital pole, that is the one coded with \textit{xx}.
+\item \textbf{presidio secondario (Figure \ref{presidiosecondario})}: looking at the chart is possible to see that this field is always filled with blank (watch the legend). Due to this fact, we can drop the field.
+\item \textbf{Tipologia di soggetto erogatore principale} (Figure \ref{tipologiaerogatoreprincipale}): looking at the chart is possible to see that all the records will refer to a unique kind of main dispenser: the one coded with 3 (classificato).
+\item \textbf{Tipologia di soggetto prescrittore} (Figure \ref{tipologiasoggettoprescrittore}): looking at the chart is possible to see that the 98\% of records will refer to a prescriptive subject coded with 1 (medico di medicina generale/ pediatra di libera scelta/ guardia medica/ guardia turistica). The left 2\% will refer to a prescriptive subject coded with 2 (medico specialista dipendente di struttura pubblica).
+\item \textbf{Codice di soggetto prescrittore} (\ref{codicesoggettoprescrittore}): looking at the chart is possible to see that the prescriptive subject which perform the more number of medical prescriptions is the one coded with 598912. The other ones perform a small part of medical prescriptions.
+\item \textbf{Livello di priorità della richiesta} (\ref{livellopriorita}): looking at the chart is possible to see that this field is always filled with blank (watch the legend). Due to this fact, we can drop the field.
+\item \textbf{Prescrizione suggerita da specialista} (\ref{prescrizionespecialista}): looking at the chart is possible to see that the 98\% of records refer to a single value (2) meaning that the medical prescription is suggested by the doctor.
+\item \textbf{Determinante clinico} (\ref{determinanteclinico}): looking at the chart is possible to see that this field is always filled with blank (watch the legend). Since this field brings no information, we can drop the field.
+\item \textbf{Codice prestazione} (\ref{codiceprestazione}): looking at the chart is possible to see that the 39\% of the records contains empty spaces. This is due to the fact that the field ``codice prestazione'' is filled only for record of type \textit{``prestazione''} and not \textit{``ricetta''}. The left 69\% is split between the different performance code in equal parts.
+\item \textbf{Numero prestazioni per codice} (\ref{numeroprestazionicodice}): looking at the chart is possible to see that the 59\% of the records refers to 1 and the 40\% contains blank. This is due to the fact that the field ``numero prestazioni per codice'' is filled only for record of type \textit{``prestazione''} and not \textit{``ricetta''}. The left 1\% is split between values ranging from 2 to 10. 
+\item \textbf{Esenzione} (\ref{esenzione}): looking at the chart is possible to see that 49\% of records refer to value 2 (non esente), 21\% of records refer to 3 (esente per età e reddito), 12\% of records refer to 4 (esente per patologia), 9\% of records refer to 1 (esente totale), 6\% of records refer to 6 (esente per categoria), and the left 3\% is split between values 7,8,5 and 9.
+\item \textbf{Patologia esenzione} (\ref{patologiaesenzione}): Looking at the chart is possible to see that 49\% of records contains empty spaces because the field ``patologia esenzione'' is filled only in case an exemption is present. The left 51\% is split between values representing the kind of exemption. There is a correlation between the percentage of fields ``esenzione'' and ``patologia esenzione''.
+\item \textbf{Tipologia di pagamento} (\ref{tipologiapagamento}): Looking at the chart is possible to see that 51\% of records refer to 1 (esente), 20\% of records refer to 5 (pagante in proprio), another 20\% of records refer to 3 (franchigia), and the last 9\% refer to 2 (ticket).
+\item \textbf{Posizione contabile} (\ref{posizionecontabile}): Looking at the chart is possible to see that 93\% of records refer to 1 (prestazioni appartenenti al mese di competenza) and the left 7\% refer to 6 (prestazioni accettate per recuperi straordinari autorizzati da specifiche disposizioni regionali).
+\item \textbf{Branca specialistica} (\ref{brancaspecialistica}): Looking at the chart is possible to see which specialistic branches are involved.
+\item \textbf{Codice ambulatorio} (\ref{codiceambulatorio}): Looking at the chart is possible to see which are the outpatient clinic. Notice that the charts of ``branca specialistica'' and ``codice ambulatorio'' are identical.
+\item \textbf{Referto} (\ref{referto}): looking at the chart is possible to see that this field is always filled with blank (watch the legend). Due to this fact, we can drop the field. 
+\end{itemize}
+Notice that, there are three important fields ``Data richiesta prestazione", ``Data effettuazione" and ``Data refertazione" such that the corresponding pie charts have not been done. This is due to the fact it is not important to show the frequencies of the dates on which the patient asks for a reservation, when the service is performed, or when the medical report is made. What is important is that these fields allow the concept of events; in the next section this speech will be resumed.
+\newpage
+\section{Ambulatori: event logs}
+In general an event log records the events that occur in a certain process for a certain case. When a new \textit{case} is started a new instance of the process is generated which is called a \textit{process instance}. This process instance might leave a \textit{trace of events} that are executed for that case in the event log. Furthermore, events are ordered to indicate in which sequence activities have occurred. In most cases this order is defined by the \textit{timestamp} attribute of the event. Sometimes the start and stop information is recorded of a single activity. This is recorded in the \textit{event type} attribute of the event. Another common attribute is the \textit{resource} that executed the event which can be a user of the system, the system itself or an external system. Many other attributes can be stored within the event log related to the event for example the data attributes added or changed. Event logs are recorded usually in the \textbf{XES} (e\textbf{X}tensible \textbf{E}vent \textbf{S}tream) event log format that's what \textbf{ProM} works with. Event data is everywhere and it's been recorded in many shapes and forms, so usually we don't get an event log on a silver plate, we have to transform it. Therefore, we have to recognize how to get the right data attributes and put it in an event log. In our case, we have a dataset where each row is representing a single ambulatory care taken by a patient. We have to identify first the case id of the process. Then, we have to discover some patterns in the data in order to extract the events with the related timestamps, and finally the resources which perform the activity associated with the events. Since at the end we want to figure out the process followed by each patient, trivially, the case id is the fiscal code of the patient. Instead, identifying the events is more difficult, since the mapping is not one to one: we have to discover the behaviour of the patients looking at each row of the dataset. There are three fields that allow us to define three different types of events:
+\begin{itemize}
+\item \textbf{Data refertazione}: From the previous section, we know that this field contains the date on which the medical prescription is compiled. This information brings us to define the \textbf{event} ``\textit{prescription}'' where the \textbf{timestamp} of this event is the value of the field ``\textit{Data refertazione}'' and the \textbf{resource} is the code of the subject who perform the medical prescription, that is, the field ``\textit{Codice soggetto prescrittore}''. Thus, the mapping in \textit{XES} will be:
+\newline
+\newline
+\begin{tabularx}{1\textwidth}{ |>{\setlength\hsize{1\hsize}\centering}X|>{\setlength\hsize{1\hsize}\centering}X|>{\setlength\hsize{1\hsize}\centering}X|>{\setlength\hsize{1\hsize}\centering}X| } 
+  \hline
+case id & event & timestamp & resource\tabularnewline
+\hline 
+  codice fiscale  & prescription  & data refertazione & codice soggetto prescrittore  \tabularnewline
+  \hline
+\end{tabularx}
+\newline
+\item \textbf{Data richiesta prestazione}: From the previous section, we know that this field contains the date on which the patient asks for a reservation. This information brings us to define the \textbf{event} ``\textit{reservation}'' where the \textbf{timestamp} of this event is the value of the field ``\textit{Data richiesta prestazione}'' and the \textbf{resource} is the specialist branch which is accreditated for the healt care provision associated with the medical prescription, that is, the field ``\textit{Branca specialistica}". Thus, the mapping in \textit{XES} will be:
+\newline
+\newline
+\begin{tabularx}{1\textwidth}{ |>{\setlength\hsize{1\hsize}\centering}X|>{\setlength\hsize{1\hsize}\centering}X|>{\setlength\hsize{1\hsize}\centering}X|>{\setlength\hsize{1\hsize}\centering}X| } 
+  \hline
+case id & event & timestamp & resource\tabularnewline
+\hline 
+codice fiscale  & reservation  & data richiesta prestazione & branca specialistica \tabularnewline
+\hline
+\end{tabularx}
+\newline
+\item \textbf{Data effettuazione}: From the previous section, we know that this field contains the date of the healt care provision. This information brings us to define the \textbf{event} ``\textit{healt care provision}'' where the \textbf{timestamp} of this event is the value of the field ``\textit{Data reffettuazione}" and the \textbf{resource} is the code of the ambulatory which perform the healt service, that is, the field ``\textit{Codice ambulatorio}". Thus the mapping in \textit{XES} will be:
+\newline
+\newline
+\begin{tabularx}{1\textwidth}{ |>{\setlength\hsize{1\hsize}\centering}X|>{\setlength\hsize{1\hsize}\centering}X|>{\setlength\hsize{1\hsize}\centering}X|>{\setlength\hsize{1\hsize}\centering}X| } 
+  \hline
+case id & event & timestamp & resource\tabularnewline
+\hline 
+  codice fiscale  & healt care provision & data effetuazione & codice ambulatorio  \tabularnewline
+  \hline
+\end{tabularx}
+\newline
+\end{itemize}
+We can add also \textbf{extra attributes}: the code of the healt service performed, which is the field ``Codice prestazione'', and the associated cost which is filled with zeros (requested from the specification of requirements). The cost is not a field of the dataset but an attribute tha will added manually in the XES. So, the final mqpping in XES will be:
+\newline
+\newline
+\begin{tabularx}{1\textwidth}{ |>{\setlength\hsize{1\hsize}\centering}X|>{\setlength\hsize{1\hsize}\centering}X|>{\setlength\hsize{1\hsize}\centering}X|>{\setlength\hsize{1\hsize}\centering}X| >{\setlength\hsize{1\hsize}\centering}X|>{\setlength\hsize{1\hsize}\centering}X| } 
+\hline
+case id & event & timestamp & resource & extra attributes\tabularnewline
+\hline
+codice fiscale  & prescription  & data refertazione & codice soggetto prescrittore & codice prestazione/ cost  \tabularnewline
+\hline
+codice fiscale  & reservation  & data richiesta prestazione & branca specialistica & codice prestazione/ cost \tabularnewline
+\hline 
+codice fiscale  & healt care provision & data effetuazione & codice ambulatorio & codice prestazione/ cost \tabularnewline
+\hline
+\end{tabularx}
+\newline
+\newline
+\newline
+Now, we can create a \textit{Java} program which takes in input the raw dataset and gives in output the event log as a \textit{csv} file compliant with the \textit{XES} standard, in particular with the mapping just obtained. Since the raw dataset contains some errors (for example some times the field ``\textit{branca specialistica}'' is empty even though it is mandatory), the Java program is built in such a way to filter the lines containing the errors. Moreover, From section \ref{piecharts} we know that for each patient in the dataset there are both a row for record the number of medical prescription (the one with the field ``progressivo di prescrizione`` equals to 99) and a row for each single ambulatory care provided by the same medical prescription. For the aim of process discovery, we can ignore the rows with the field ``progressivo di prescrizione`` equals to 99, since we will not lose useful information. Therefore, The Java program can filter out these records. Once obtained the csv file, representing the event log, we're ready to work with \textit{ProM}. The ProM tool takes as input the event log (in csv format) and builds automatically the XES event log. This can be done by a wizard.
+%An event log consists of traces, and a trace consists of events. The trace can have a name and other attributes, and each event has a name, the timestamp when it happened, the resource that executed this and the lifecycle transition that the event records.
+Let's start ProM and load the ``\textit{AmbulatorioEventLog.csv}'' file. The following screen appears:
+\newpage
+\begin{figure} [htbp]
+\centering
+\includegraphics[width=\textwidth]{EventLogCSV}
+%\caption{Tipologia di soggetto erogatore principale}\label{tipologiaerogatoreprincipale}
+\end{figure}
+Now clicking the triangle icon, the play button, to the right of the CSV object, the following screen appears:
+\begin{figure} [htbp]
+\centering
+\includegraphics[width=\textwidth]{EventLogConvert}
+\end{figure}
+\newline
+Now clicking start, we can see the screen below:
+\begin{figure} [htbp]
+\centering
+\includegraphics[width=\textwidth]{EventLogConvert2}
+\end{figure}
+\newpage
+From the parser setting screen we click ‘\textit{Next}’ in order to arrive at the ‘\textit{Mapping to Standard XES Attributes}’ screen. We add the fiscal code column as the case id column, the rest is automatically detect, except for the resource which must be manually selected. We should now have the screen as shown below:
+\begin{figure} [htbp]
+\centering
+\includegraphics[width=\textwidth]{EventLogConvert3}
+\end{figure}\\
+For set manually the resource we must click on ‘\textit{Show expert configuration}’ and then select the field ‘\textit{org:resource (concept)}’ as follow:
+\begin{figure} [htbp]
+\centering
+\includegraphics[width=\textwidth]{EventLogConvert4}
+\end{figure}
+\newpage
+Once closed the expert configuration by clicking the cross on the top right, we can finish the wizard by clicking ‘\textit{Next}’, set ‘\textit{Stop on error}’ (if there is some error during the conversion, the procedure stops) as below, and ‘\textit{Finish}’:
+\begin{figure} [htbp]
+\centering
+\includegraphics[width=\textwidth]{EventLogConvert5}
+\end{figure}
+\newpage
+We have now created an event log, which should be visualized by the log dialog as is shown below:
+\begin{figure} [htbp]
+\centering
+\includegraphics[width=\textwidth]{EventLogConvert6}
+\end{figure}
+From now we can visualize and inspect the event log. The main visualizer for event logs is the log dialogue. It consists of two charts in middle but the key figures are in the left column. This indicates that there is one process in the event log made up by 42973 traces with 434787 events recorded for these 42973 cases. Then we have 3 different event classes that have been observed and they cover only one event type (complete). We can see also which resource executed a particular event: In our case we have 4130 different originators and ProM also allow to show how the different resources can collaborate. In the central part of this view we have two graphs: the top one is the ``\textit{events per case}'' graph, and the bottom one is the ``\textit{event classes per case}'' graph. The top chart shows how many events per case are recorded and also the distribution. So the minimum length of a trace is 1 event and the maximum length is 573 events. The bottom chart shows the number of event types (activities) per case, showing also the minimum and the maximum length. On the right-hand side we can see the first and the last observed timestamp, which gives the time span of the event log. On the left we see the we are currently looking at the \textbf{dashboard}, but we can also \textbf{inspect} the event log and view a \textbf{summary}. So, let's inspect:
+\newpage
+\begin{figure} [htbp]
+\centering
+\includegraphics[width=\textwidth]{EventLogConvert7}
+\end{figure}
+On the left we can see all the traces that are recorded in the event log, and as we can see in figure, when we click a trace we can see the list of events recorded for that trace. On the right-hand side we currently see the attributes for this current trace which is only the concept name but when we select the event ``\textit{prescription}'', for example, we see: 
+\begin{figure} [htbp]
+\centering
+\includegraphics[width=\textwidth]{EventLogConvert8}
+\end{figure}
+\newpage
+Looking at the figure we can see the event has a \textit{concept name}, the \textit{lifecycle transition} which indicates the states of the activity that was observed (complete), the \textbf{resource} who performed the activity (819243), the related \textit{timestamp} (27.01.2016) and the \textit{extra attributes} ``codice prestazione'' (90.44.3) and ``cost'' (0). On the top we have also another tab, the \textbf{explorer}:
+\newpage
+\begin{figure} [htbp]
+\centering
+\includegraphics[width=\textwidth]{EventLogConvert9}
+\end{figure}
+It is actually a different visualization of the individual traces. We can see all the traces and we can hover over each of the widgets and you get additional information. The color indicates how frequent the activity is. The last tab \textbf{log attribute} is not of our interest. The last step on the left is actually the \textbf{summary}:
+\newpage
+\begin{figure} [htbp]
+\centering
+\includegraphics[width=\textwidth]{EventLogConvert10}
+\end{figure}
+%p983254@mvrht.net
+It gives a bit detailed overview of how often particular event classes occur. So on the top we can see that we have  traces 42973 and 434787 events. There are written the events with the frequencies they appear: the event ``healt care provision'' is observed 164273 times and it's roughly the 38\% of all observed events; then both the event ``\textit{prescription}'' and ``\textit{reservation}'' have been observed 135257 times. We can also see how many particular events or event classes was the starting or the ending event for a trace. In our case, all the traces starts with the event ``\textit{prescription}'' or with the event ``\textit{healt care provision}'' (sometimes the various patients go in ambulatory without asking for a reservation and without the medical prescription). From the percentage, figures out that the majority of the traces (roughly 70\%) start with the event ``\textit{prescription}'' , as right as it is, and all of them (100\%) ends with the event ``\textit{healt care provision}'':
+\newpage
+\begin{figure} [htbp]
+\centering
+\includegraphics[width=\textwidth]{EventLogConvert11}
+\end{figure}
+\section{Ambulatori: discovering the process model}
+\section{Conclusions}
+\end{document}
