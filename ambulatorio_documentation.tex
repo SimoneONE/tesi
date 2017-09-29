@@ -90,8 +90,8 @@ The dataset of San Carlo Nancy hospital is made up by three different files:
 \end{itemize}
 These three files contain information about both year 2016 and May 2017. We apply process mining techniques to obtain meaningful knowledge about the patient care processes, for instance, to discover typical paths followed by particular groups of patients. In order to do so we extracted relevant event logs from the dataset and analyzed these logs using the ProM framework. \textbf{This paper covers only the part related to the ``Ambulatori'' file}.
 \newpage
-\section{Ambulatori: inspecting the file}
-The ``Ambulatori'' file consists in the following fields:
+\section{Inspection of the dataset ``Ambulatori''}
+The ``Ambulatori'' dataset consists in the following fields:
 \begin{figure} [h]
 \centering
 \includegraphics[scale = 1.1]{immagine}
@@ -216,7 +216,7 @@ This field is filled only for the prescriptions compiled by the basic physician.
 \item \textbf{Referto}: medical reports according to ICDIXCM encoding.
 \end{enumerate}
 
-\section{Ambulatori: pie charts}\label{piecharts}
+\section{Analysis based on pie charts}\label{piecharts}
 The pie charts are built taking into account ``ambulatori'' data-set of the year 2016. In particular, the pie charts that will follow are the ones corresponding to the most important fields of the dataset, that is, the ones containing useful information for discovering the process model. For instance, the personal data of the patients (name, surname, gender, etc \ldots) are useless in terms of ``\textbf{process}'' and therefore the pie charts corresponding to them are not shown. Let's see the pie charts in details: \newline
 \begin{figure} [htbp]
 \begin{minipage}[t]{0.5\textwidth}
@@ -351,7 +351,7 @@ The pie charts are built taking into account ``ambulatori'' data-set of the year
 \end{itemize}
 Notice that, there are three important fields ``Data richiesta prestazione", ``Data effettuazione" and ``Data refertazione" such that the corresponding pie charts have not been done. This is due to the fact it is not important to show the frequencies of the dates on which the patient asks for a reservation, when the service is performed, or when the medical report is made. What is important is that these fields allow the concept of events; in the next section this speech will be resumed.
 \newpage
-\section{Ambulatori: event logs}
+\section{Event logs}
 In general an event log records the events that occur in a certain process for a certain case. When a new \textit{case} is started a new instance of the process is generated which is called a \textit{process instance}. This process instance might leave a \textit{trace of events} that are executed for that case in the event log. Furthermore, events are ordered to indicate in which sequence activities have occurred. In most cases this order is defined by the \textit{timestamp} attribute of the event. Sometimes the start and stop information is recorded of a single activity. This is recorded in the \textit{event type} attribute of the event. Another common attribute is the \textit{resource} that executed the event which can be a user of the system, the system itself or an external system. Many other attributes can be stored within the event log related to the event for example the data attributes added or changed. Event logs are recorded usually in the \textbf{XES} (e\textbf{X}tensible \textbf{E}vent \textbf{S}tream) event log format that's what \textbf{ProM} works with. Event data is everywhere and it's been recorded in many shapes and forms, so usually we don't get an event log on a silver plate, we have to transform it. Therefore, we have to recognize how to get the right data attributes and put it in an event log. In our case, we have a dataset where each row is representing a single ambulatory care taken by a patient. We have to identify first the case id of the process. Then, we have to discover some patterns in the data in order to extract the events with the related timestamps, and finally the resources which perform the activity associated with the events. Since at the end we want to figure out the process followed by each patient, trivially, the case id is the fiscal code of the patient. Instead, identifying the events is more difficult, since the mapping is not one to one: we have to discover the behaviour of the patients looking at each row of the dataset. There are three fields that allow us to define three different types of events:
 \begin{itemize}
 \item \textbf{Data refertazione}: From the previous section, we know that this field contains the date on which the medical prescription is compiled. This information brings us to define the \textbf{event} ``\textit{prescription}'' where the \textbf{timestamp} of this event is the value of the field ``\textit{Data refertazione}'' and the \textbf{resource} is the code of the subject who perform the medical prescription, that is, the field ``\textit{Codice soggetto prescrittore}''. Thus, the mapping in \textit{XES} will be:
@@ -405,80 +405,135 @@ codice fiscale  & healt care provision & data effetuazione & codice ambulatorio 
 \newline
 \newline
 \newline
-Now, we can create a \textit{Java} program which takes in input the raw dataset and gives in output the event log as a \textit{csv} file compliant with the \textit{XES} standard, in particular with the mapping just obtained. Since the raw dataset contains some errors (for example some times the field ``\textit{branca specialistica}'' is empty even though it is mandatory), the Java program is built in such a way to filter the lines containing the errors. Moreover, From section \ref{piecharts} we know that for each patient in the dataset there are both a row for record the number of medical prescription (the one with the field ``progressivo di prescrizione`` equals to 99) and a row for each single ambulatory care provided by the same medical prescription. For the aim of process discovery, we can ignore the rows with the field ``progressivo di prescrizione`` equals to 99, since we will not lose useful information. Therefore, The Java program can filter out these records. Once obtained the csv file, representing the event log, we're ready to work with \textit{ProM}. The ProM tool takes as input the event log (in csv format) and builds automatically the XES event log. This can be done by a wizard.
+Now, we can create a \textit{Java} program which takes in input the raw dataset and gives in output the event log as a \textit{csv} file compliant with the \textit{XES} standard, in particular with the mapping just obtained. Since the raw dataset contains some errors (for example some times the field ``\textit{branca specialistica}'' is empty even though it is mandatory), the Java program is built in such a way to filter the lines containing the errors. Moreover, From section \ref{piecharts} we know that for each patient in the dataset there are both a row for record the number of medical prescription (the one with the field ``progressivo di prescrizione`` equals to 99) and a row for each single ambulatory care provided by the same medical prescription. For the aim of process discovery, we can ignore the rows with the field ``progressivo di prescrizione`` equals to 99, since we will not lose useful information. Therefore, The Java program can filter out these records. Once obtained the csv file, representing the event log, we're ready to work with \textit{ProM}. The ProM tool takes as input the event log (in csv format) and builds automatically the XES event log. This can be done by a wizard.Let's start ProM and load the ``\textit{AmbulatorioEventLog.csv}'' file.
 %An event log consists of traces, and a trace consists of events. The trace can have a name and other attributes, and each event has a name, the timestamp when it happened, the resource that executed this and the lifecycle transition that the event records.
-Let's start ProM and load the ``\textit{AmbulatorioEventLog.csv}'' file. The following screen appears:
 \newpage
+The following screen appears:
 \begin{figure} [htbp]
 \centering
-\includegraphics[width=\textwidth]{EventLogCSV}
+\includegraphics[scale = 0.4]{EventLogCSV}
 %\caption{Tipologia di soggetto erogatore principale}\label{tipologiaerogatoreprincipale}
-\end{figure}
+\end{figure}\\
 Now clicking the triangle icon, the play button, to the right of the CSV object, the following screen appears:
 \begin{figure} [htbp]
 \centering
-\includegraphics[width=\textwidth]{EventLogConvert}
+\includegraphics[scale = 0.4]{EventLogConvert}
 \end{figure}
-\newline
+\newpage
 Now clicking start, we can see the screen below:
 \begin{figure} [htbp]
 \centering
-\includegraphics[width=\textwidth]{EventLogConvert2}
-\end{figure}
-\newpage
+\includegraphics[scale = 0.4]{EventLogConvert2}
+\end{figure} \\
 From the parser setting screen we click ‘\textit{Next}’ in order to arrive at the ‘\textit{Mapping to Standard XES Attributes}’ screen. We add the fiscal code column as the case id column, the rest is automatically detect, except for the resource which must be manually selected. We should now have the screen as shown below:
 \begin{figure} [htbp]
 \centering
-\includegraphics[width=\textwidth]{EventLogConvert3}
-\end{figure}\\
+\includegraphics[scale = 0.4]{EventLogConvert3}
+\end{figure}
+\newpage
 For set manually the resource we must click on ‘\textit{Show expert configuration}’ and then select the field ‘\textit{org:resource (concept)}’ as follow:
 \begin{figure} [htbp]
 \centering
-\includegraphics[width=\textwidth]{EventLogConvert4}
-\end{figure}
-\newpage
+\includegraphics[scale = 0.4]{EventLogConvert4}
+\end{figure}\\
 Once closed the expert configuration by clicking the cross on the top right, we can finish the wizard by clicking ‘\textit{Next}’, set ‘\textit{Stop on error}’ (if there is some error during the conversion, the procedure stops) as below, and ‘\textit{Finish}’:
 \begin{figure} [htbp]
 \centering
-\includegraphics[width=\textwidth]{EventLogConvert5}
+\includegraphics[scale = 0.4]{EventLogConvert5}
 \end{figure}
 \newpage
-We have now created an event log, which should be visualized by the log dialog as is shown below:
+We have created now an event log, which should be visualized by the log dialog as is shown below:
 \begin{figure} [htbp]
 \centering
-\includegraphics[width=\textwidth]{EventLogConvert6}
+\includegraphics[scale = 0.4]{EventLogConvert6}
 \end{figure}
-From now we can visualize and inspect the event log. The main visualizer for event logs is the log dialogue. It consists of two charts in middle but the key figures are in the left column. This indicates that there is one process in the event log made up by 42973 traces with 434787 events recorded for these 42973 cases. Then we have 3 different event classes that have been observed and they cover only one event type (complete). We can see also which resource executed a particular event: In our case we have 4130 different originators and ProM also allow to show how the different resources can collaborate. In the central part of this view we have two graphs: the top one is the ``\textit{events per case}'' graph, and the bottom one is the ``\textit{event classes per case}'' graph. The top chart shows how many events per case are recorded and also the distribution. So the minimum length of a trace is 1 event and the maximum length is 573 events. The bottom chart shows the number of event types (activities) per case, showing also the minimum and the maximum length. On the right-hand side we can see the first and the last observed timestamp, which gives the time span of the event log. On the left we see the we are currently looking at the \textbf{dashboard}, but we can also \textbf{inspect} the event log and view a \textbf{summary}. So, let's inspect:
+From now we can visualize and inspect the event log. The main visualizer for event logs is the log dialogue. It consists of two charts in middle but the key figures are in the left column. This indicates that there is one process in the event log made up by 42973 traces with 434787 events recorded for these 328947 cases. Then we have 3 different event classes that have been observed and they cover only one event type (complete). We can see also which resource executed a particular event: In our case we have 4130 different originators and ProM also allow to show how the different resources can collaborate. In the central part of this view we have two graphs: the top one is the ``\textit{events per case}'' graph, and the bottom one is the ``\textit{event classes per case}'' graph. The top chart shows how many events per case are recorded and also the distribution. So the minimum length of a trace is 1 event and the maximum length is 299 events. The bottom chart shows the number of event types (activities) per case, showing also the minimum and the maximum length. On the right-hand side we can see the first and the last observed timestamp, which gives the time span of the event log. On the left we see the we are currently looking at the \textbf{dashboard}, but we can also \textbf{inspect} the event log and view a \textbf{summary}.
 \newpage
+So, let's inspect:
 \begin{figure} [htbp]
 \centering
-\includegraphics[width=\textwidth]{EventLogConvert7}
-\end{figure}
+\includegraphics[scale = 0.4]{EventLogConvert7}
+\end{figure}\\
 On the left we can see all the traces that are recorded in the event log, and as we can see in figure, when we click a trace we can see the list of events recorded for that trace. On the right-hand side we currently see the attributes for this current trace which is only the concept name but when we select the event ``\textit{prescription}'', for example, we see: 
 \begin{figure} [htbp]
 \centering
-\includegraphics[width=\textwidth]{EventLogConvert8}
-\end{figure}
-\newpage
-Looking at the figure we can see the event has a \textit{concept name}, the \textit{lifecycle transition} which indicates the states of the activity that was observed (complete), the \textbf{resource} who performed the activity (819243), the related \textit{timestamp} (27.01.2016) and the \textit{extra attributes} ``codice prestazione'' (90.44.3) and ``cost'' (0). On the top we have also another tab, the \textbf{explorer}:
-\newpage
+\includegraphics[scale=0.40]{EventLogConvert8}
+\end{figure}\\
+Looking at the figure we can see the event has a \textit{concept name}, the \textit{lifecycle transition} which indicates the states of the activity that was observed (complete), the \textit{resource} who performed the activity (819243), the related \textit{timestamp} (27.01.2016) and the \textit{extra attributes} ``codice prestazione'' (90.44.3) and ``cost'' (0). On the top we have also another tab, the \textbf{explorer}:
 \begin{figure} [htbp]
 \centering
-\includegraphics[width=\textwidth]{EventLogConvert9}
-\end{figure}
+\includegraphics[scale = 0.40]{EventLogConvert9}
+\end{figure}\\
 It is actually a different visualization of the individual traces. We can see all the traces and we can hover over each of the widgets and you get additional information. The color indicates how frequent the activity is. The last tab \textbf{log attribute} is not of our interest. The last step on the left is actually the \textbf{summary}:
-\newpage
 \begin{figure} [htbp]
 \centering
-\includegraphics[width=\textwidth]{EventLogConvert10}
-\end{figure}
+\includegraphics[scale = 0.40]{EventLogConvert10}
+\end{figure}\\
 %p983254@mvrht.net
 It gives a bit detailed overview of how often particular event classes occur. So on the top we can see that we have  traces 42973 and 434787 events. There are written the events with the frequencies they appear: the event ``healt care provision'' is observed 164273 times and it's roughly the 38\% of all observed events; then both the event ``\textit{prescription}'' and ``\textit{reservation}'' have been observed 135257 times. We can also see how many particular events or event classes was the starting or the ending event for a trace. In our case, all the traces starts with the event ``\textit{prescription}'' or with the event ``\textit{healt care provision}'' (sometimes the various patients go in ambulatory without asking for a reservation and without the medical prescription). From the percentage, figures out that the majority of the traces (roughly 70\%) start with the event ``\textit{prescription}'' , as right as it is, and all of them (100\%) ends with the event ``\textit{healt care provision}'':
-\newpage
 \begin{figure} [htbp]
 \centering
-\includegraphics[width=\textwidth]{EventLogConvert11}
+\includegraphics[scale = 0.40]{EventLogConvert11}
 \end{figure}
-\section{Ambulatori: discovering the process model}
+The next step is to apply process mining techniques, in particular process discovery, to the event log just observed and inspected, for obtaining the process model. This will be explained in the next section.
+\newpage
+\section{Discovering the process model}
+For discovering the process model, we have to go in the workspace screen of ProM:
+\begin{figure} [htbp]
+\centering
+\includegraphics[scale = 0.40]{ProcessModelBefore}
+\end{figure}\\
+Then select the XES Event Log and click on the triangle icon, the play button, and the following screen appear:
+\begin{figure} [htbp]
+\centering
+\includegraphics[scale = 0.40]{ProcessModelBefore2}
+\end{figure}
+\newpage
+We have to search the word 'miner' and select the BPMN Miner pressing start:
+\begin{figure} [htbp]
+\centering
+\includegraphics[scale = 0.40]{ProcessModelBefore3}
+\end{figure}\\
+Then, the following screen appears:
+\begin{figure} [htbp]
+\centering
+\includegraphics[scale = 0.40]{ProcessModelBefore4}
+\end{figure}\\
+From these list of mining algorithm we pick first the \textbf{alpha miner} (the worst one), then both the \textbf{heuristic miner} and the \textbf{inductive miner} (the best ones). 
+\newpage
+The discovered process model according to the \textbf{alpha miner} algorithm is the following:
+\begin{figure} [htbp]
+\centering
+\includegraphics[width=\textwidth]{AlphaMiner}
+\caption{BPMN Diagram of the derived process model using the alpha miner}
+\end{figure}\\
+As we can see from the picture above, the model just obtained is wrong: the and split at the beginning is totally no sense. Moreover, the model does not fit well the event log; for example, we know from the previous sections that a patient can go in ambulatory without both the medical prescription and the reservation. The model does not capture this behaviour since the activity healt care provision cannot be executed alone according to the process model, but this is wrong, because we can have a trace made up by only healt care provision events. So we can trash the model obtained with the alpha miner.\\
+Instead, the discovered process model according to the \textbf{heuristic miner} algorithm is the following:
+\begin{figure} [htbp]
+\centering
+\includegraphics[width=\textwidth]{HeuristicMiner}
+\caption{BPMN Diagram of the derived process model using the heuristic miner}
+\end{figure}\\
+Looking at the BPMN diagram obtained following the previous step we can see that there is a first XOR split which allow us to distinguish two cases:
+\begin{enumerate}
+\item if the patient has the medical prescription, then he go through the path consisting of the following activities: prescription $\rightarrow$ reservation $\rightarrow$ healt care provision. In particular, from the first XOR split we reach a XOR join followed by the activities prescription and reservation. From here, there is another XOR join followed by the healt care provision activity. This activity is a loop activity since a patient can perform a cycle of ambulatory cares instead of a single healt service for a certain medical prescription. The healt care provision activity points to a XOR split with two distinct branches:
+\begin{itemize}
+\item one branch is connected to the end state; if this is the case, the patient has terminated all the ambulatory cares. 
+\item one branch is connected with the first XOR join; if this is the case, the patient can start a new cycle of ambulatory cares prescripted in another medical prescription.
+\end{itemize} 
+\item if the patient has not the medical prescription, then he can go directly in ambulatory without asking for a reservation and without the medical prescription. In this case, the patient performs only one single activity: the healt care provision activity. This activity, as we said before, can be performed many times; this because a certain ambulatory care of a certain medical prescription can be repeated more than one time.  The healt care provision activity points to a XOR split with two distinct branches:
+\begin{itemize}
+\item one branch is connected to the end state; if this is the case, the patient has terminated all the ambulatory cares. 
+\item one branch is connected with the first XOR join; if this is the case, the patient can start a new cycle of ambulatory cares prescripted in another medical prescription.
+\end{itemize} 
+\end{enumerate}
+The discovered process model according to the \textbf{inductive miner} algorithm is the following:
+\begin{figure} [htbp]
+\centering
+\includegraphics[width=\textwidth]{InductiveMiner}
+\caption{BPMN Diagram of the derived process model using the inductive miner}
+\end{figure}\\
+The two diagram looks like similar. The main difference between them is that the loop of the activity healt care provision is represented in a different way. The heuristic miner puts the loop symbol within the rectangle of the activity, instead, the inductive miner represents the loop with the XOR split/XOR join pattern: indeed after performed the activity the patient can either end the process or go back at the start. The rest is more or less the same.
+\newpage
 \section{Conclusions}
 \end{document}
